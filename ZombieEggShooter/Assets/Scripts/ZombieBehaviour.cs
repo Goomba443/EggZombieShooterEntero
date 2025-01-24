@@ -10,7 +10,7 @@ public class ZombieBehaviour : MonoBehaviour
     public LayerMask ground;
     public LayerMask playerCollider;
 
-    public static float zombieHealth = 100f;
+    private float zombieHealth = 100f;
     public static float zombieDamage = 20f;
     private static float takeDamageCoolDown = 1.5f;
     private static float lerpTimer = 0;
@@ -20,6 +20,9 @@ public class ZombieBehaviour : MonoBehaviour
     public Vector3 walkPoint;
     bool walkPointSet;
     public float walkPointRange;
+    private static bool walkingOneWay = false;
+    private static float walkOneWay = 0;
+    private static float walkAnotherWay = 4f;
 
     public float attackCoolDown;
     bool restingFromAttack;
@@ -50,6 +53,24 @@ public class ZombieBehaviour : MonoBehaviour
                 restingFromBeingAttacked = false;
             }
         }
+
+        if (walkingOneWay)
+        {
+            walkOneWay -= Time.deltaTime;
+            if (walkOneWay < 0)
+            {
+                walkingOneWay = false;
+                walkAnotherWay = 4f;
+            }
+        } else
+        {
+            walkAnotherWay -= Time.deltaTime;
+            if (walkAnotherWay < 0)
+            {
+                walkingOneWay = true;
+                walkOneWay = 4f;
+            }
+        }
     }
 
     private void Patrolling() {
@@ -76,7 +97,13 @@ public class ZombieBehaviour : MonoBehaviour
         float randomX = Random.Range(-walkPointRange, walkPointRange);
         float randomZ = Random.Range(-walkPointRange, walkPointRange);
 
-        walkPoint = new Vector3(transform.position.x + randomX, transform.position.y, transform.position.z + randomZ);
+        if (walkingOneWay)
+        {
+            walkPoint = new Vector3(transform.position.x + 10, transform.position.y, transform.position.z);
+        } else
+        {
+            walkPoint = new Vector3(transform.position.x - 10, transform.position.y, transform.position.z);
+        }
 
         if(Physics.Raycast(walkPoint, -transform.up, 2f, ground)) {
             walkPointSet = true;
@@ -103,7 +130,7 @@ public class ZombieBehaviour : MonoBehaviour
         restingFromAttack = false;
     }
 
-    public static void ZombieTakesDamage(GameObject zombie, float damage) {
+    public void ZombieTakesDamage(GameObject zombie, float damage) {
         if(!restingFromBeingAttacked)
         {
             restingFromBeingAttacked = true;

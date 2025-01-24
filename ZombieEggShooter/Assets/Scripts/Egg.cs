@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class Egg : MonoBehaviour
@@ -30,7 +31,10 @@ public class Egg : MonoBehaviour
         {
             Debug.Log("hit " + collision.gameObject.name + "!");
             CreateEggImpactEffect(collision);
-            ZombieBehaviour.ZombieTakesDamage(collision.gameObject, 25f); 
+            ZombieBehaviour zombie = collision.gameObject.GetComponent<ZombieBehaviour>();
+            
+            zombie.ZombieTakesDamage(collision.gameObject, 25f);
+            //ZombieBehaviour.ZombieTakesDamage(collision.gameObject, 25f); 
             Destroy(gameObject);
         }
 
